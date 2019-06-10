@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:http="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>停车场管理系统</title>
+    <link rel="stylesheet" href="./css/layui.css">
+    <script src="./jquery.js"></script>
+    <script src="./jquery.cookie.js"></script>
+    <script src="./echarts.js"></script>
+</head>
+<script>
+    var userName = JSON.parse($.cookie("user")).userName;
+    $(document).ready(function(){
+        $("#name").text(userName);
+        $("#name").click(function () {
+            var flag = confirm("确定退出登录？");
+            if (flag) {
+                $.cookie("user",null);
+                location.href="/parking-point/index.html";
+            }
+        })
+    });
+</script>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">停车场管理系统</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a id="name" href="javascript:;">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item">
+                    <a class="" href="javascript:;">车位管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick=laodIframe("./pages/parklist.html")>全部车位信息</a></dd>
+                    </dl>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick=laodIframe("./pages/templatelist.html")>临时车进出场</a></dd>
+                    </dl>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick=laodIframe("./pages/appointmentList.html")>车辆预约管理</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">购买管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick=laodIframe("./pages/viechlelist.html")>购买信息</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">统计管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick=laodIframe("./pages/statistic.html")>车辆进出统计</a></dd>
+                    </dl>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick=laodIframe("./pages/pointBuy.html")>车位购买统计</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;">余额管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a onclick=laodIframe("./pages/adminBalance.html")>账户余额查询</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <iframe id="iframe"  style="width:100%;height:530px;" frameborder="no" scrolling="no" ></iframe>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+    </div>
+</div>
+<script src="./layui.js"></script>
+<script>
+    //JavaScript代码区域
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+    function laodIframe(url) {
+
+        var $iframe = $("#iframe");
+
+        $iframe.attr("src", url);
+    }
+</script>
+</body>
+</html>

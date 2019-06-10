@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>车辆进出场管理</title>
+    <script type="text/javascript" src="../echarts.js"></script>
+    <script type="text/javascript" src="../jquery.js"></script>
+</head>
+<body>
+<div id = "myChart" style="width:100%;height:500px;"></div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var data1 = []; //驶入车辆
+        var data2 = []; //驶出车辆
+        var Xdata = []; //X轴展示数据
+        jQuery.ajax({
+            url:"/parking-point/template/statistic",
+            async:false,
+            type:"Get",
+            //data:JSON.stringify({userId:userId, password:password}),
+            //dataType:"json",
+            //contentType: "application/json",
+            success:function(res){ //成功回调函数
+                if(res.success){
+                   console.log(res);
+                   console.log("COM------",res.data.com);
+                   console.log("OUT------",res.data.out);
+                   data1 = res.data.com;
+                   data2 = res.data.out;
+                   Xdata = res.data.time;
+                }else{
+                    alert(res.msg);
+                }
+            },
+            error:function (res){ //失败回调函数
+                alert(res.msg);
+            }
+        });
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('myChart'));
+        var option = {
+            title: {
+                text: '一天之内车辆进出车位统计'
+            },
+            //'#4cabce', '#006699',
+            color: ['#e5323e',  '#006699'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['驶入车辆', '驶出车辆']
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType: {show: true, type: ['line', 'bar']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            grid: {
+                top: '12%',
+                left: '1%',
+                right: '10%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    //axisTick: {show: false},
+                    data: Xdata,
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '驶入车辆',
+                    type: 'bar',
+                    barGap: 0,
+                    data: data1,
+                },
+                {
+                    name: '驶出车辆',
+                    type: 'bar',
+                    data: data2,
+                }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    });
+
+</script>
+</html>

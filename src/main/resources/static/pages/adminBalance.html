@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询余额</title>
+    <link rel="stylesheet" href="../css/layui.css">
+    <script src="../jquery.js"></script>
+    <script src="../jquery.cookie.js"></script>
+</head>
+<body>
+<div style="margin-top: 2%;margin-left: 20%;width: 60%;height:100%">
+    <!--<form class="layui-form" action="" lay-filter="example" style="font-family: 楷体;font-size: 45px;font-style: inherit">
+        <div class="layui-form-item">
+            <label class="layui-form-label">账户:</label>
+            <div class="layui-input-block">
+                <input type="text"  autocomplete="off" class="layui-input" disabled style="border: none" id = "userName"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">账户余额:</label>
+            <div class="layui-input-block">
+                <input type="text" autocomplete="off" class="layui-input" disabled style="border: none" id = "balance"></input>
+            </div>
+        </div>
+    </form>-->
+    <table style="font-family: 楷体;font-size: 45px;font-style: inherit;" cellpadding="3" cellspacing="3">
+        <tr>
+          <td>账户：</td>
+            <td id="userName"></td>
+        </tr>
+        </br>
+        <tr>
+            <td>余额：</td>
+            <td id="balance"></td>
+        </tr>
+    </table>
+</div>
+</body>
+<script>
+    $(document).ready(function() {
+        jQuery.ajax({
+            url: "/parking-point/user/balance",
+            async: false,
+            type: "GET",
+            success: function (res) { //成功回调函数
+                if (res.success) {
+                    //alert("查询余额成功！");
+                    $("#userName").text(res.data.userName);
+                    $("#balance").text(res.data.balance);
+                    console.log(res);
+                } else {
+                    alert(res.msg);
+                }
+            },
+            error: function (res) { //失败回调函数
+                alert(res.msg);
+            }
+        });
+    });
+</script>
+</html>

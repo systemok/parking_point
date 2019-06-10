@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询余额</title>
+    <link rel="stylesheet" href="../css/layui.css">
+    <script src="../jquery.js"></script>
+    <script src="../jquery.cookie.js"></script>
+</head>
+<body>
+<div style="margin-top: 1%;margin-left: 20%;width: 60%;height:100%">
+    <form class="layui-form" action="" lay-filter="example">
+        <div class="layui-form-item">
+            <label class="layui-form-label">车牌号:</label>
+            <div class="layui-input-block">
+                <input type="text" autocomplete="off" class="layui-input" disabled style="border: none" id = "viechleNumber"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">车位号:</label>
+            <div class="layui-input-block">
+                <input type="text" autocomplete="off" class="layui-input" disabled style="border: none" id = "parkingNo"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">购买时间:</label>
+            <div class="layui-input-block">
+                <input type="text" autocomplete="off" class="layui-input" disabled style="border: none" id = "effectiveTime"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">到期时间:</label>
+            <div class="layui-input-block">
+                <input type="text"  autocomplete="off" class="layui-input" disabled style="border: none" id = "expiredTime"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">车位状态:</label>
+            <div class="layui-input-block">
+                <input type="text"  autocomplete="off" class="layui-input" disabled style="border: none;color: #0000FF" id = "status"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">出租状态:</label>
+            <div class="layui-input-block">
+                <input type="text"  autocomplete="off" class="layui-input" disabled style="border: none;color: #007DDB"  id = "isValid"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">出租开始:</label>
+            <div class="layui-input-block">
+                <input type="text"  autocomplete="off" class="layui-input" disabled style="border: none" id = "sharingStartTime"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">出租结束:</label>
+            <div class="layui-input-block">
+                <input type="text"  autocomplete="off" class="layui-input" disabled style="border: none" id = "sharingEndTime"></input>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">账户余额:</label>
+            <div class="layui-input-block">
+                <input type="text" autocomplete="off" class="layui-input" disabled style="border: none" id = "balance"></input>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+<script>
+    $(document).ready(function() {
+        var viechle = JSON.parse($.cookie("viechle"));
+        console.log("VIECHLE++++",viechle);
+      /*  $("#viechleNumber").val(viechle.viechleNumber);
+        $("#parkingNo").val(viechle.parkingPositionCode);
+        $("#balance").val(viechle.balance);*/
+      var viechleNumber = viechle.viechleNumber;
+        jQuery.ajax({
+            url: "/parking-point/viechle/getViechleByNo?viechleNumber="+viechleNumber,
+            async: false,
+            type: "GET",
+            success: function (res) { //成功回调函数
+                if (res.success) {
+                    //alert("查询余额成功！");
+                    $("#viechleNumber").val(res.data.viechleNumber);
+                    $("#parkingNo").val(res.data.parkingPositionCode);
+                    $("#balance").val(res.data.balance);
+                    $("#effectiveTime").val(res.data.effectedTime);
+                    $("#expiredTime").val(res.data.expiredTime);
+                    $("#isValid").val(res.data.isValid);
+                    $("#status").val(res.data.status);
+                    $("#sharingStartTime").val(res.data.sharingStartTime);
+                    $("#sharingEndTime").val(res.data.sharingEndTime);
+                    console.log(res);
+                } else {
+                    alert(res.msg);
+                }
+            },
+            error: function (res) { //失败回调函数
+                alert(res.msg);
+            }
+        });
+    });
+</script>
+</html>

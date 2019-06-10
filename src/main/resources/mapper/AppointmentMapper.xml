@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.parking.point.mapper.AppointmentMapper">
+  <resultMap id="BaseResultMap" type="com.parking.point.entity.Appointment">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="parking_point_code" jdbcType="VARCHAR" property="parkingPointCode" />
+    <result column="viechle_number" jdbcType="VARCHAR" property="viechleNumber" />
+    <result column="apply_time" jdbcType="TIMESTAMP" property="applyTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="expired_time" jdbcType="TIMESTAMP" property="expiredTime" />
+    <result column="is_valid" jdbcType="VARCHAR" property="isValid" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, parking_point_code, viechle_number, apply_time, create_time, expired_time,(CASE IS_VALID WHEN 1 THEN '有效' ELSE '无效' END )AS is_valid
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from appointment
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from appointment
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.parking.point.entity.Appointment">
+    insert into appointment (id, parking_point_code, viechle_number, 
+      apply_time, create_time, expired_time
+      )
+    values (UUID(), #{parkingPointCode,jdbcType=VARCHAR}, #{viechleNumber,jdbcType=VARCHAR},
+      #{applyTime,jdbcType=TIMESTAMP},now(), #{expiredTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.parking.point.entity.Appointment">
+    insert into appointment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="parkingPointCode != null">
+        parking_point_code,
+      </if>
+      <if test="viechleNumber != null">
+        viechle_number,
+      </if>
+      <if test="applyTime != null">
+        apply_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="expiredTime != null">
+        expired_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="parkingPointCode != null">
+        #{parkingPointCode,jdbcType=VARCHAR},
+      </if>
+      <if test="viechleNumber != null">
+        #{viechleNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="applyTime != null">
+        #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expiredTime != null">
+        #{expiredTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.parking.point.entity.Appointment">
+    update appointment
+    <set>
+      <if test="parkingPointCode != null">
+        parking_point_code = #{parkingPointCode,jdbcType=VARCHAR},
+      </if>
+      <if test="viechleNumber != null">
+        viechle_number = #{viechleNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="applyTime != null">
+        apply_time = #{applyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expiredTime != null">
+        expired_time = #{expiredTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.parking.point.entity.Appointment">
+    update appointment
+    set parking_point_code = #{parkingPointCode,jdbcType=VARCHAR},
+      viechle_number = #{viechleNumber,jdbcType=VARCHAR},
+      apply_time = #{applyTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      expired_time = #{expiredTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="cleanAppointment">
+    update appointment set is_valid = '0'
+    where is_valid = '1' and date_format(apply_time,'%Y-%m-%d %H:%i:%s') <![CDATA[ <= ]]> date_format(now(),'%Y-%m-%d %H:%i:%s')
+  </update>
+  <select id="listAppointment" resultMap="BaseResultMap">
+    select
+        id, parking_point_code, viechle_number, apply_time, create_time, expired_time,
+        (CASE is_valid WHEN 1 THEN '有效' ELSE '无效' END) AS is_valid
+        from appointment
+  </select>
+</mapper>

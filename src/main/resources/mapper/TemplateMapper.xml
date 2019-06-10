@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.parking.point.mapper.TemplateMapper">
+    <select id="statisticCom" resultType="java.util.HashMap">
+        SELECT MAX(num) as num FROM
+         (SELECT COUNT(*) num,TIME_FORMAT(start_time,'%H:00') TIME FROM template WHERE DATE_FORMAT(start_time,'%Y-%m-%d') = DATE_FORMAT(#{date,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        GROUP BY TIME_FORMAT(start_time,'%H:00') UNION SELECT num,TIME_FORMAT(TIME,'%H:00') FROM timeconfig)AS temp GROUP BY TIME
+    </select>
+    <select id="statisticOut" resultType="java.util.HashMap">
+        SELECT MAX(num) as num FROM
+         (SELECT COUNT(*) num,TIME_FORMAT(end_time,'%H:00') TIME FROM template WHERE DATE_FORMAT(end_time,'%Y-%m-%d') = DATE_FORMAT(#{date,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        GROUP BY TIME_FORMAT(end_time,'%H:00') UNION SELECT num,TIME_FORMAT(TIME,'%H:00') FROM timeconfig)AS temp GROUP BY TIME
+    </select>
+    <select id="getConfig" resultType = "java.util.HashMap">
+        select time from timeconfig order by time
+    </select>
+</mapper>

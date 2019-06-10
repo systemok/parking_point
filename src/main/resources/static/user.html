@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:http="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>停车场管理系统</title>
+    <link rel="stylesheet" href="./css/layui.css">
+    <script src="./jquery.js"></script>
+    <script src="./jquery.cookie.js"></script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">停车场管理系统</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a id="name" href="javascript:;">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item"><a onclick=laodIframe("./pages/changePassword.html")>修改密码</a></li>
+                <li class="layui-nav-item"><a onclick=laodIframe("./pages/viechleBalance.html")>查询余额</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <iframe id="iframe"  style="width:100%;height:530px;" frameborder="no" scrolling="no" ></iframe>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+    </div>
+</div>
+<script src="./layui.js"></script>
+<script>
+    //JavaScript代码区域
+    layui.use('element', function () {
+        var element = layui.element;
+
+    });
+    function laodIframe(url) {
+
+        var $iframe = $("#iframe");
+
+        $iframe.attr("src", url);
+    }
+    var userName = JSON.parse($.cookie("viechle")).viechleNumber;
+    console.log(userName);
+    $(document).ready(function(){
+        $("#name").text(userName);
+        $("#name").click(function () {
+            var flag = confirm("确定退出登录？");
+            if (flag) {
+                $.cookie("viechle","");
+                location.href="/parking-point/login.html";
+            }
+        })
+    });
+</script>
+</body>
+</html>

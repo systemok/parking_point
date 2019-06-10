@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.parking.point.mapper.ParkingPointMapper">
+    <resultMap id="BaseResultMap" type="com.parking.point.entity.ParkingPoint">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="code" jdbcType="VARCHAR" property="code" />
+        <result column="sharing" jdbcType="VARCHAR" property="sharing" />
+        <result column="sharing_type" jdbcType="VARCHAR" property="sharingType" />
+        <result column="sharing_start_time" jdbcType="TIMESTAMP" property="sharingStartTime" />
+        <result column="sharing_end_time" jdbcType="TIMESTAMP" property="sharingEndTime" />
+        <result column="sharing_count_day" jdbcType="DOUBLE" property="sharingCountDay" />
+        <result column="sharing_second" jdbcType="VARCHAR" property="sharingSecond" />
+        <result column="sharing_second_start_time" jdbcType="TIMESTAMP" property="sharingSecondStartTime" />
+        <result column="sharing_second_end_time" jdbcType="TIMESTAMP" property="sharingSecondEndTime" />
+        <result column="sharing_second_count_day" jdbcType="DOUBLE" property="sharingSecondCountDay" />
+        <result column="distance" jdbcType="DOUBLE" property="distance" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="is_used" jdbcType="VARCHAR" property="isUsed" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,code,sharing,sharing_type,sharing_start_time,sharing_end_time,sharing_count_day,
+        sharing_second,sharing_second_start_time,sharing_second_end_time,sharing_second_count_day,
+        distance,create_by,create_time,update_by,update_time,is_used
+    </sql>
+
+    <select id="notUsedParkingPoint" resultMap="BaseResultMap">
+        SELECT  <include refid="Base_Column_List" /> FROM  parking_point t where t.sharing='0'
+    </select>
+
+  <select id="getParkingPointByPPCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT  <include refid="Base_Column_List" /> FROM  parking_point t where t.code=#{code}
+
+    </select>
+
+    <update id="updateStatus">
+        update parking_point
+        set is_used = #{status}
+        where code = #{parkingPointCode,jdbcType=VARCHAR} and is_used <![CDATA[ != ]]> #{status}
+    </update>
+    <select id="list" resultMap="BaseResultMap">
+        SELECT id,CODE,sharing,sharing_type,sharing_start_time,sharing_end_time,sharing_count_day, sharing_second,sharing_second_start_time,sharing_second_end_time,sharing_second_count_day, distance,create_by,create_time,update_by,update_time,is_used FROM
+        parking_point WHERE
+        is_used <![CDATA[ != ]]> '1'
+        <choose>
+            <when test="mean != null and '' != mean">
+              and  sharing = '0'
+               <!-- AND NOT EXISTS( SELECT 1 FROM appointment a WHERE a.parking_point_code = CODE AND DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s') <![CDATA[ <= ]]> DATE_FORMAT(a.expired_time,'%Y-%m-%d %H:%i:%s') )-->
+            </when>
+        <!--    <otherwise>
+                is_used <![CDATA[ != ]]> '1'
+            </otherwise>-->
+        </choose>
+        ORDER BY distance ASC
+    </select>
+    <select id="listParkingPoint" resultMap="BaseResultMap">
+        select id,code,(CASE sharing WHEN 0 THEN '未售' ELSE '已售' END) AS sharing,sharing_type,sharing_start_time,sharing_end_time,sharing_count_day,
+        (CASE sharing_second WHEN 0 THEN '暂不共享' ELSE '二次共享' END)AS sharing_second,sharing_second_start_time,sharing_second_end_time,sharing_second_count_day,
+        distance,create_by,create_time,update_by,update_time,(CASE is_used WHEN 0 THEN '空闲' ELSE '占用' END) as is_used from parking_point
+    </select>
+    <update id="cleanIsUsed1">
+        update parking_point set is_used = '1'
+        WHERE
+        is_used = '0'
+        and sharing = '1'
+        and sharing_second = '0'
+    </update>
+    <update id="cleanIsUsed">
+        update parking_point set is_used = '0'
+        WHERE
+        is_used = '1'
+        and not exists(select 1 from template where parking_position_code = code and end_time is null)
+        and not exists (select 1 from viechle where parking_position_code = code and status = '0')
+        and  not exists (SELECT 1 FROM appointment WHERE parking_point_code = CODE AND  is_valid = '1' )
+    </update>
+    <update id="cleanSharing">
+        update parking_point set sharing = '0'
+        where sharing = '1'
+       and Date_format(sharing_end_time,'%Y-%m-%d %H:%i:%s') <![CDATA[ <= ]]> Date_format(now(),'%Y-%m-%d %H:%i:%s')
+    </update>
+    <delete id="removeByCode">
+        delete from parking_point where code = #{code,jdbcType=VARCHAR}
+    </delete>
+    <select id="statisticPointBuy" resultType="java.util.HashMap">
+        select
+        count(*) as value , CASE sharing WHEN 1 THEN '已售' ELSE '未售' END as name from parking_point group by sharing
+    </select>
+    <update id="cleanSharingSecond">
+        update parking_point set sharing_second = '0'
+        where sharing_second = '1'
+        and (  sharing = '0' or <![CDATA[date_format(sharing_second_end_time,'%Y-%m-%d %H:%i:%s') < date_format(now(),'%Y-%m-%d %H:%i:%s')]]>)
+    </update>
+</mapper>

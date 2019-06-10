@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href=".././css/layui.css" media="all">
+    <script src="../layui.js" charset="utf-8"></script>
+    <link rel="stylesheet" href=".././laydate/theme/default/laydate.css" media="all">
+    <script src="../layui.js" ></script>
+    <script src=".././laydate/laydate.js" ></script>
+    <script src=".././jquery.js" charset="utf-8"></script>
+    <script src="../util/util.js" type="text/javascript"></script>
+    <style type="text/css">
+        .white_content {
+            display: none;
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 60%;
+            height: 70%;
+            border: 2px solid #d3d3d3;
+            background-color: white;
+            z-index: 1002;
+        }
+
+    </style>
+</head>
+
+<body>
+<div style="margin-bottom: 5px;">
+</div>
+<div class="layui-btn-group demoTable">
+    <button class="layui-btn" onclick="ShowDiv('MyDiv')">购买</button>
+</div>
+<table class="layui-table" lay-data="{ url:'/parking-point/viechle/list', page:true, id:'idTest'}"
+       lay-filter="demo" id="table1">
+    <thead>
+    <tr>
+        <th lay-data="{field:'viechleNumber'}">车牌号</th>
+        <th lay-data="{field:'parkingPositionCode'}">车位号</th>
+        <th lay-data="{field:'balance'}">余额(元)</th>
+        <th lay-data="{field:'effectedTime'}" id="effectedTime">购买时间</th>
+        <th lay-data="{field:'expiredTime'}" id="expiredTime">结束时间</th>
+        <th lay-data="{field:'totalDay'}">时长(天)</th>
+        <th lay-data="{field:'sharingStartTime'}">共享开始时间</th>
+        <th lay-data="{field:'sharingEndTime'}" >共享结束时间</th>
+        <th lay-data="{field:'sharingTotalDay'}" >共享时长(天)</th>
+        <th lay-data="{field:'isValid'}">购买有效</th>
+        <th lay-data="{field:'status'}">当前状态</th>
+        <th lay-data="{fixed: 'right', width:150, align:'center', toolbar: '#barDemo'}"></th>
+
+    </tr>
+    </thead>
+</table>
+<input type="hidden"  value="" id="id">
+<!--弹出层时背景层DIV---start-->
+<div id="MyDiv" class="white_content">
+    <div style="text-align: right; cursor: default; margin-top:10px;margin-bottom:10px;">
+        <span style="font-size: 16px; margin-right: 17px; color: #56BE2D; font-weight: 600;cursor:pointer;"
+              onclick="CloseDiv('MyDiv')">关闭</span>
+    </div>
+
+    <h1 style="font-family:幼圆;font-weight:bold;text-align: center">购买</h1>
+    <br/><br/>
+    <div class="layui-form-item" style="padding-left: 120px">
+       <label class="layui-form-label"><h3><span class="required-key-input">*</span>车牌号:</h3></label>
+        <div class="layui-input-block">
+            <input type="text" name="title" id="viechleNumber" required lay-verify="required" placeholder="请输入车牌号"
+                   autocomplete="off" class="layui-input" style="width: 350px;height: 40px;border-radius: 10px">
+        </div>
+    </div>
+    <br/>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <label class="layui-form-label"><h3>车位号:</h3></label>
+        <div class="layui-input-block">
+            <select name="parkingPositionCode"
+                    style="width: 350px;height: 40px;border-radius: 10px;border: 1px solid #eee"
+                    id="parkingPositionCode">
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <label class="layui-form-label"><h3>购买时长:</h3></label>
+        <div class="layui-input-block">
+            <input type="text" name="title" id="totalDay" required lay-verify="required" placeholder="请输入购买时长(天)"
+                   autocomplete="off" class="layui-input" style="width: 350px;height: 40px;border-radius: 10px">
+        </div>
+    </div>
+    <br/><br/>
+    <div style=" margin-left: 35%">
+        <button class='layui-btn' onclick="add()"><i class='layui-icon'>&#xe605;</i>购买</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button class='layui-btn ' onclick="CloseDiv('MyDiv')"><i class='layui-icon'>&#x1006;</i>取消</button>
+
+    </div>
+</div>
+<!--弹出层时背景层DIV---end-->
+
+<!--弹出层时背景层DIV1再次购买---start-->
+
+<div id="MyDiv1" class="white_content">
+    <input type="text" hidden name="onceMoreCode" id="onceMoreCode"/>
+    <input type="text" hidden name="onceMoreId" id="onceMoreId"/>
+    <input type="text"  hidden name="onceMoreEffectedTime" id="onceMoreEffectedTime"/>
+    <input type="text" hidden name="onceMoreExpiredTime" id="onceMoreExpiredTime"/>
+    <input type="text" hidden name = "viechleNumberBuy" id="viechleNumberBuy"/>
+    <div style="text-align: right; cursor: default; margin-top:10px;margin-bottom:10px;">
+        <span style="font-size: 16px; margin-right: 17px; color: #56BE2D; font-weight: 600;cursor:pointer;"
+              onclick="CloseDiv('MyDiv1')">关闭</span>
+    </div>
+
+    <h1 style="font-family:幼圆;font-weight:bold;text-align: center">再次购买</h1>
+    <br/><br/>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <label class="layui-form-label"><h3>车位号:</h3></label>
+        <div class="layui-input-block">
+            <input type="text" name="parkingPositionCode1"
+                    style="width: 350px;height: 40px;border-radius: 10px;border: 1px solid #eee"
+                    id="parkingPositionCode1"/>
+        </div>
+    </div>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <label class="layui-form-label"><h3>购买时长:</h3></label>
+        <div class="layui-input-block">
+            <input type="text" name="title" id="totalDay1" required lay-verify="required" placeholder="请输入购买时长(天)"
+                   autocomplete="off" class="layui-input" style="width: 350px;height: 40px;border-radius: 10px">
+        </div>
+    </div>
+    <br/><br/>
+    <div style=" margin-left: 35%">
+        <button class='layui-btn' onclick="buyOnceMore()"><i class='layui-icon'>&#xe605;</i>保存</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button class='layui-btn ' onclick="CloseDiv('MyDiv1')"><i class='layui-icon'>&#x1006;</i>取消</button>
+
+    </div>
+</div>
+<!--弹出层时背景层DIV---end-->
+<!--弹出层时背景层DIV2- 二次共享--start-->
+
+<div id="MyDiv2" class="white_content">
+    <div style="text-align: right; cursor: default; margin-top:10px;margin-bottom:10px;">
+        <span style="font-size: 16px; margin-right: 17px; color: #56BE2D; font-weight: 600;cursor:pointer;"
+              onclick="CloseDiv('MyDiv2')">关闭</span>
+    </div>
+
+    <h1 style="font-family:幼圆;font-weight:bold;text-align: center">出租起止时间</h1>
+    <br/><br/>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <input type="text" hidden name="hireId" id="hireId"/>
+        <input type="text" hidden name="hireCode" id="hireCode"/>
+        <input type="date" hidden name="beginTime" id="beginTime"/>
+        <input type="text" hidden name="endTime" id="endTime"/>
+        <input type="text" hidden name = "viechleNumberHire" id="viechleNumberHire"/>
+        <div style="height: 45px;">
+            <label class="layui-form-label"><h3>起始日期:</h3></label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="rentOutStartTime" type="text" placeholder="请输入结束时间 年-月-日 时:分:秒"
+                           style="width: 350px;height: 40px;border-radius: 10px">
+                </div>
+        </div>
+        <br/>
+        <div style="height: 45px;">
+            <label class="layui-form-label"><h3>截止日期:</h3></label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="rentOutOverTime" placeholder="请输入结束时间 年-月-日 时:分:秒"
+                       style="width: 350px;height: 40px;border-radius: 10px">
+            </div>
+        </div>
+    </div>
+    <br/><br/>
+    <div style=" margin-left: 35%">
+        <button class='layui-btn' onclick="share()"><i class='layui-icon'>&#xe605;</i>共享</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button class='layui-btn ' onclick="CloseDiv('MyDiv2')"><i class='layui-icon'>&#x1006;</i>取消</button>
+
+    </div>
+</div>
+
+
+
+<!--弹出层时背景层DIV---end-->
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="share">共享</a>
+    <a class="layui-btn layui-btn-xs" lay-event="buyOnceMore">再次购买</a>
+</script>
+
+<script>
+        layui.use('laydate', function () {
+            var laydate = layui.laydate;
+            //日期时间选择器
+            laydate.render({
+                elem: '#rentOutStartTime',
+                min: '2016-10-14',
+                max: '2080-10-14',
+                type: 'datetime'
+            });
+            //日期时间选择器
+            laydate.render({
+                elem: '#rentOutOverTime'
+                ,type: 'datetime'
+            });
+        });
+
+        layui.use('table', function () {
+            var table = layui.table;
+            //监听工具条
+            table.on('tool(demo)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'buyOnceMore') {
+                    ShowDiv1('MyDiv1',data) ;
+                    $("#viechleNumberBuy").val(data.viechleNumber);
+                }else if(obj.event === 'share'){
+                    ShowDiv1('MyDiv2',data) ;
+                    $("#viechleNumberHire").val(data.viechleNumber);
+                }
+            });
+            /*$('.demoTable .layui-btn').on('click', function () {
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });*/
+        });
+
+    function ShowDiv(show_div) {
+        document.getElementById("viechleNumber").innerHTML = "";
+        document.getElementById("parkingPositionCode").innerHTML = "";
+        //document.getElementById("totalDay1").innerHTML = "365";
+        $("#totalDay").val("365");
+        document.getElementById(show_div).style.display = 'block';
+        $.ajax({
+            type: 'POST',
+            url: '/parking-point/parking-point/allList',
+            data:{mean:'BUY'},
+            success: function (res) {
+                var data = res;
+                console.log(data);
+                if (res.status == 0) {
+                    for (var i = 0; i < data.data.length + 1; i++) {
+
+                        $("#parkingPositionCode").append("<option value='" + data.data[i].code + "'>" + data.data[i].code + "车位</option>");
+
+                    }
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    };
+    function ShowDiv1(show_div,data) {
+            $("#onceMoreExpiredTime").val(data.expiredTime);
+            document.getElementById(show_div).style.display = 'block';
+       // alert(data.viechleNumber);
+        var url = '/parking-point/parking-point/getParkingPointByPPCode';
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data:{
+                    code:data.parkingPositionCode,
+                },
+                success: function (res) {
+                    //debugger;
+                    var data = res.data;
+                    if (res.status == 0) {
+                        if(show_div=='MyDiv1'){
+                            $("#parkingPositionCode1").val(data.code).attr("readOnly","true");
+                            $("#onceMoreCode").val(data.code);
+                            $("#onceMoreId").val(data.id);
+                            $("#onceMoreEffectedTime").val(data.sharingStartTime);
+                            $("#onceMoreExpiredTime").val(data.sharingEndTime);
+                        }else{
+                            $("#hireId").val(data.id);
+                            $("#hireCode").val(data.code);
+                            $("#beginTime").val(data.sharingStartTime);
+                            $("#endTime").val(data.sharingEndTime);
+                        }
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            })
+            //document.getElementById("parkingPositionCode1").innerHTML = "";
+            document.getElementById("totalDay1").innerHTML = "";
+
+        }
+
+    //关闭弹出层
+    function CloseDiv(show_div) {
+        document.getElementById(show_div).style.display = 'none';
+    };
+
+
+    function add() {
+        var viechleNumber = $("#viechleNumber").val();
+        var parkingPositionCode = $("#parkingPositionCode").val();
+        var totalDay = $("#totalDay").val();
+        if(!testValue(viechleNumber)){
+            alert("车牌号格式不正确！");
+            $("#viechleNumber").text(' ');
+            return;
+        }
+        if(totalDay < 365){
+            alert("购买时长必须大于等于一年！");
+            return;
+        }
+        if('' == viechleNumber || null == viechleNumber){
+            alert("请输入车牌号！");
+            return;
+        }
+        if('' == parkingPositionCode || null == parkingPositionCode){
+            alert("请输入车位号码！");
+            return;
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/parking-point/viechle/add',
+            data: {
+                viechleNumber: viechleNumber,
+                parkingPositionCode: parkingPositionCode,
+                totalDay: totalDay
+            },
+            success: function (res) {
+                if (res.status == 0) {
+                    CloseDiv('MyDiv');
+                    alert("购买成功");
+                    window.parent.laodIframe("./pages/viechlelist.html");
+
+                }else{
+
+                    alert(res.msg);
+                }
+            },
+            error: function (error) {
+
+                console.log(error);
+            }
+        })
+    }
+  
+        function buyOnceMore() {
+            var parkingPositionCode = $("#parkingPositionCode1").val();
+            var totalDay = $("#totalDay1").val();
+            var code=$("#onceMoreCode").val();
+            var id = $("#onceMoreId").val();
+            var onceMoreEffectedTime = $("#onceMoreEffectedTime").val();
+            var onceMoreExpiredTime = $("#onceMoreExpiredTime").val();
+            var viechleNumber = $("#viechleNumberBuy").val();
+            $.ajax({
+                type: 'POST',
+                url: '/parking-point/viechle/buyAgain',
+                data: {
+                    parkingPositionCode: parkingPositionCode,
+                    totalDay: totalDay,
+                    code:code,
+                    id:id,
+                    viechleNumber:viechleNumber
+                   /* effectedTime:onceMoreEffectedTime,
+                    expiredTime:onceMoreExpiredTime*/
+                },
+
+                success: function (res) {
+                    if (res.status == 0) {
+                        var data = res.data;
+                        CloseDiv('MyDiv1');
+                        alert("再次购买成功");
+                        $("#onceMoreExpiredTime").val(data.expiredTime);
+                        window.parent.laodIframe("./pages/viechlelist.html");
+                    }else{
+                        alert(res.msg);
+                    }
+                },
+                error: function (error) {
+
+                    console.log(error);
+                }
+            })
+        }
+
+        function share() {
+            var hireId = $("#hireId").val();
+            var hireCode = $("#hireCode").val();
+            var effectiveTime = $("#rentOutStartTime").val();
+            var expiredTime = $("#rentOutOverTime").val();
+            var viechleNumber = $("#viechleNumberHire").val();
+            $.ajax({
+                type: 'POST',
+                url: '/parking-point/viechle/share',
+                data: JSON.stringify({
+                    "parkingPositionCode":hireCode,
+                    "effectiveTime":new Date(effectiveTime),
+                    "expiredTime":new Date(expiredTime),
+                    "viechleNumber":viechleNumber
+                }),
+                dataType:"json",
+                contentType: "application/json",
+                success: function (res) {
+                    if (res.status == 0) {
+                        CloseDiv('MyDiv2');
+                        alert("共享成功")
+                        window.parent.laodIframe("./pages/viechlelist.html");
+                    }else{
+                        alert(res.msg);
+                    }
+                },
+                error: function (error) {
+
+                    console.log(error);
+                }
+            })
+        }
+</script>
+</body>
+</html>

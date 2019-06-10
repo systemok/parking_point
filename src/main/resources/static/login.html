@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>用户登陆</title>
+    <link rel="stylesheet" href="./css/layui.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <script  type="text/javascript" src = "./jquery.js"></script>
+    <script  type="text/javascript" src = "./jquery.cookie.js"></script>
+    <script type="text/javascript" src="./util/util.js"></script>
+    <!--
+        <link rel="icon" href="img/6.jpg">
+    -->
+</head>
+<body>
+<div class="login-main">
+    <header class="layui-elip">用户登陆</header>
+    <form action="" method="post" target="_self">
+        <div class="layui-input-inline">
+            <input type="text" name="viechleNumber" id="viechleNumber" required  lay-verify="required" placeholder="车牌号" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline">
+            <input type="password" name="password" id="password" required  lay-verify="required" placeholder="密码" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline login-btn">
+            <button type="button" class="layui-btn" id="submit">登录</button>
+        </div>
+    </form>
+</div>
+<script src="./layui.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#submit").click(function(){
+            var viechleNumber = $("#viechleNumber").val();
+            var password = $("#password").val();
+            if(!testValue(viechleNumber)){
+                alert("车牌号格式不正确！");
+                $("#viechleNumber").text(' ');
+                return;
+            }
+            jQuery.ajax({
+                url:"/parking-point/viechle/login",
+                async:false,
+                type:"POST",
+                data:JSON.stringify({viechleNumber:viechleNumber, password:password}),
+                dataType:"json",
+                contentType: "application/json",
+                success:function(res){ //成功回调函数
+                    if(res.success){
+                        var viechle = res.data;
+                        $.cookie('viechle', JSON.stringify(viechle));
+                        console.log("viechle===>",viechle);
+                        console.log("viechle===>",$.cookie('viechle'));
+                        location.href='/parking-point/user.html';
+                    }else{
+                        alert(res.msg);
+                    }
+                },
+                error:function (res){ //失败回调函数
+                    alert(res.msg);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

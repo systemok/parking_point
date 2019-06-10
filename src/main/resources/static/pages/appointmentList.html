@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href=".././css/layui.css"  media="all">
+    <script src=".././jquery.js" charset="utf-8"></script>
+    <script src="../util/util.js" type="text/javascript"></script>
+</head>
+<style type="text/css">
+    .white_content {
+        display: none;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        width: 60%;
+        height: 70%;
+        border: 2px solid #d3d3d3;
+        background-color: white;
+        z-index: 1002;
+    }
+
+</style>
+<body>
+<div style="margin-bottom: 5px;">
+</div>
+<div class="layui-btn-group demoTable">
+    <button class="layui-btn"  onclick="ShowDiv('MyDiv')">预约</button>
+</div>
+<table class="layui-table" lay-data="{ height:480, url:'/parking-point/appointment/list', page:true, id:'idTest'}" lay-filter="demo">
+    <thead>
+    <tr>
+        <th lay-data="{field:'viechleNumber',align:'center'}">车牌号</th>
+        <th lay-data="{field:'parkingPointCode',align:'center'}">车位号</th>
+        <th lay-data="{field:'applyTime',width:150,align:'center'}">预约时间</th>
+        <th lay-data="{field:'expiredTime',width:150,align:'center'}">失效时间</th>
+        <th lay-data="{field:'isValid',align:'center'}">是否有效</th>
+      <!--  <th lay-data="{field:'fees',width:170,align:'center'}">收费标准(每小时)</th>
+        <th lay-data="{field:'money',align:'center'}">收费</th>-->
+        <th lay-data="{fixed: 'right', width:178, align:'center', toolbar: '#barDemo'}"></th>
+    </tr>
+    </thead>
+</table>
+<!--弹出层时背景层DIV---start-->
+
+<div id="MyDiv" class="white_content">
+    <div style="text-align: right; cursor: default; margin-top:10px;margin-bottom:10px;">
+        <span style="font-size: 16px; margin-right: 17px; color: #56BE2D; font-weight: 600;cursor:pointer;"  onclick="CloseDiv('MyDiv')">关闭</span>
+    </div>
+
+    <h1 style="font-family:幼圆;font-weight:bold;text-align: center" >车辆预约</h1>
+    <br/><br/>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <label class="layui-form-label" ><h3>车牌号:</h3></label>
+        <div class="layui-input-block">
+            <input type="text" name="viechleNumber" id="viechleNumber" required  lay-verify="required" placeholder="请输入车牌号" autocomplete="off" class="layui-input" style="width: 350px;height: 40px;border-radius: 10px">
+        </div>
+    </div>
+    <br/>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <label class="layui-form-label" ><h3>车位号:</h3></label>
+        <div class="layui-input-block">
+            <select name="parkingPointCode"  id="parkingPointCode" style="width: 350px;height: 40px;border-radius: 10px;border: 1px solid #eee" id="parkingPositionCode">
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item" style="padding-left: 120px">
+        <label class="layui-form-label"><h3>预约时间:</h3></label>
+        <div class="layui-input-inline">
+            <input type="text" name="applyTime" id="applyTime"  lay-verify="required" placeholder="请输入起始时间 年-月-日 时:分:秒"
+                   autocomplete="off" class="layui-input" style="width: 350px;height: 40px;border-radius: 10px">
+        </div>
+    </div>
+    <br/><br/>
+    <div style=" margin-left: 35%">
+        <button class='layui-btn' onclick="add()"  ><i class='layui-icon'>&#xe605;</i>保存</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button class='layui-btn ' onclick="CloseDiv('MyDiv')" ><i class='layui-icon'>&#x1006;</i>取消</button>
+
+    </div>
+</div>
+<!--弹出层时背景层DIV---end-->
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+<script src=".././layui.js" charset="utf-8"></script>
+<script>
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+        //日期时间选择器
+        laydate.render({
+            elem: '#applyTime',
+            min: '2016-10-14',
+            max: '2080-10-14',
+            type: 'datetime'
+        });
+    });
+    function Format(datetime,fmt) {
+      /*  if (parseInt(datetime)==datetime) {
+            if (datetime.length==10) {
+                datetime=parseInt(datetime)*1000;
+            } else if(datetime.length==13) {
+                datetime=parseInt(datetime);
+            }
+        }*/
+        datetime=new Date(datetime);
+        var o = {
+            "M+" : datetime.getMonth()+1,                 //月份
+            "d+" : datetime.getDate() > 10 ? datetime.getDate() : "0"+datetime.getDate(),                    //日
+            "h+" : datetime.getHours()> 10 ? datetime.getHours() : "0"+datetime.getHours(),                   //小时
+            "m+" : datetime.getMinutes() > 10 ? datetime.getMinutes() : "0"+datetime.getMinutes(),                 //分
+            "s+" : datetime.getSeconds() > 10 ? datetime.getSeconds() : "0"+datetime.getSeconds(),                 //秒
+        };
+        if(/(y+)/.test(fmt))
+            fmt=fmt.replace(RegExp.$1, (datetime.getFullYear()+"").substr(4 - RegExp.$1.length));
+        for(var k in o)
+            if(new RegExp("("+ k +")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        return fmt;
+    }
+    layui.use('table', function(){
+        var table = layui.table;
+        //监听工具条
+        table.on('tool(demo)', function(obj){
+            var data = obj.data;
+            console.log("DATA===>",data);
+            if(obj.event === 'del'){
+                if(data.isValid == '有效'){
+                    alert("该车尚未结账，禁止删除！");
+                    return;
+                }else{
+                    layer.confirm("确定删除该条信息吗!删除之后不可恢复！",function (index) {
+                        console.log("DATA1===>",data);
+                        deleteAppointment(data,index);
+                        var $ = layui.$, active = {
+                            reload: function(){
+                                var demoReload = $('#demoReload');
+                                //执行重载
+                                table.reload('testReload', {
+                                    page: {
+                                        curr: 1 //重新从第 1 页开始
+                                    }
+                                    ,where: {
+                                        key: {
+                                            id: demoReload.val()
+                                        }
+                                    }
+                                });
+                            }
+                        };
+
+                        $('.demoTable .layui-btn').on('click', function(){
+                            var type = $(this).data('type');
+                            active[type] ? active[type].call(this) : '';
+                        });
+                    });
+                }
+            }
+        });
+    });
+    function deleteAppointment(data,index){
+        console.log(data);
+        $.ajax({
+            type: 'POST',
+            url: '/parking-point/appointment/del',
+            /*dataType:"json",
+            contentType: "application/json",*/
+            data: {id: data.id},
+            success: function (res) {
+                if (res.status == 0) {
+                    layer.close(index);
+                    alert("删除成功");
+                    window.parent.laodIframe("./pages/appointmentList.html");
+                } else {
+                    alert(res.msg);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+    function ShowDiv(show_div){
+        document.getElementById("viechleNumber").innerHTML="";
+        document.getElementById("parkingPointCode").innerHTML="";
+        document.getElementById(show_div).style.display='block';
+        $.ajax({
+            type:'POST',
+            url:'/parking-point/parking-point/allList',
+            success:function (res) {
+                var data=res;
+                console.log(data);
+                if(data.status==0){
+                    for(var i=0;i<data.data.length+1;i++){
+                        $("#parkingPointCode").append("<option value='"+data.data[i].code+"'>"+data.data[i].code+"车位</option>");
+                    }
+
+                }
+            },
+            error:function (error) {
+                console.log(error);
+            }
+        })
+    };
+    //关闭弹出层
+    function CloseDiv(show_div)
+    {
+        document.getElementById(show_div).style.display='none';
+    };
+
+
+    function  add() {
+        var viechleNumber=$("#viechleNumber").val();
+        var parkingPointCode=$("#parkingPointCode").val();
+        var applyTime=$("#applyTime").val();
+        if(!testValue(viechleNumber)){
+            alert("车牌号格式不正确！");
+            return;
+        }
+        if(null == parkingPointCode || '' == parkingPointCode){
+            alert("车位号码不能为空！");
+            return;
+        }
+        if(null == applyTime || '' == applyTime){
+            alert("预约时间不能为空！");
+            return;
+        }
+        $.ajax({
+            type:'POST',
+            url:'/parking-point/appointment/add',
+            data:JSON.stringify({"viechleNumber":viechleNumber,
+                "parkingPointCode":parkingPointCode,
+                "applyTime": Format(applyTime,"yyyy-M-d h:m:s")}),
+            dataType:"json",
+            contentType: "application/json",
+            success:function (res) {
+                if(res.status==0){
+                    CloseDiv('MyDiv');
+                    alert("预约成功");
+                    window.parent.laodIframe("./pages/appointmentList.html");
+                }else{
+                    CloseDiv('MyDiv');
+                    alert(res.msg);
+                }
+            },
+            error:function (error) {
+
+                console.log(error);
+            }
+        })
+    }
+</script>
+</body>
+</html>

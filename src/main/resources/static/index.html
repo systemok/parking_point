@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>管理员登陆</title>
+    <link rel="stylesheet" href="./css/layui.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <script  type="text/javascript" src = "./jquery.js"></script>
+    <script  type="text/javascript" src = "./jquery.cookie.js"></script>
+<!--
+    <link rel="icon" href="img/6.jpg">
+-->
+</head>
+<body>
+<div class="login-main">
+    <header class="layui-elip">欢迎登陆</header>
+    <form action="" method="post" target="_self">
+        <div class="layui-input-inline">
+            <input type="text" name="userId" id="userId" required  lay-verify="required" placeholder="账号" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline">
+            <input type="password" name="password" id="password" required  lay-verify="required" placeholder="密码" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline login-btn">
+            <button type="button" class="layui-btn" id="submit">登录</button>
+        </div>
+    </form>
+</div>
+<script src="./layui.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#submit").click(function(){
+            var userId = $("#userId").val();
+            var password = $("#password").val();
+            jQuery.ajax({
+                url:"/parking-point/user/login",
+                async:false,
+                type:"POST",
+                data:JSON.stringify({userId:userId, password:password}),
+                dataType:"json",
+                contentType: "application/json",
+                success:function(res){ //成功回调函数
+                   if(res.success){
+                        var user = res.data;
+                        $.cookie('user', JSON.stringify(user));
+                        console.log("USER===>",user);
+                        console.log("COOKIE===>",$.cookie('user'));
+                       location.href='/parking-point/admin.html';
+                    }else{
+                       alert(res.msg);
+                   }
+                },
+                error:function (res){ //失败回调函数
+                    alert(res.msg);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

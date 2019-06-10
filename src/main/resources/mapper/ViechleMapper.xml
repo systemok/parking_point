@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.parking.point.mapper.ViechleMapper">
+    <select id="getViechleByNo" resultType="com.parking.point.entity.Viechle">
+        SELECT v.viechle_number,v.balance,v.parking_position_code,DATE_FORMAT(v.sharing_start_time,'%Y-%m-%d %H:%i:%s') AS sharing_start_time,
+               DATE_FORMAT(v.sharing_end_time,'%Y-%m-%d %H:%i:%s') AS sharing_end_time,
+                DATE_FORMAT(v.effected_time,'%Y-%m-%d %H:%i:%s') AS effected_time
+                ,DATE_FORMAT(v.expired_time,'%Y-%m-%d %H:%i:%s') AS expired_time,
+                CASE is_valid WHEN 1 THEN '有效' ELSE '无效' END AS is_valid,balance,total_day,
+               (CASE STATUS WHEN 1 THEN '出租' ELSE '自用' END) AS STATUS
+                FROM
+               viechle v LEFT JOIN parking_point p ON v.parking_position_code = p.code
+               where v.viechle_number = #{viechleNumber,jdbcType=VARCHAR}
+    </select>
+    <update id="cleanViechle">
+        update viechle set is_valid = '0'
+        where is_valid = '1'
+        and Date_format(expired_time,'%Y-%m-%d %H:%i:%s') <![CDATA[ <= ]]> Date_format(now(),'%Y-%m-%d %H:%i:%s')
+    </update>
+    <update id="cleanViechle1">
+        update viechle set status = '0'
+        where
+        is_valid = '1'
+        and status = '1'
+        and Date_format(sharing_end_time,'%Y-%m-%d %H:%i:%s') <![CDATA[ <= ]]> Date_format(now(),'%Y-%m-%d %H:%i:%s')
+    </update>
+    <select id="listViechle" resultType="com.parking.point.entity.Viechle">
+        select id,viechle_number,effected_time,expired_time,parking_position_code,CASE is_valid WHEN 1 THEN '有效' ELSE '无效' END AS is_valid,balance,total_day,
+        (CASE STATUS WHEN 1 THEN '出租' ELSE '自用' END) AS STATUS,sharing_start_time,sharing_end_time,sharing_total_day
+        from VIECHLE where <![CDATA[ date_format(expired_time,'%Y-%m-%d %H:%i:%s') >= date_format(now(),'%Y-%m-%d %H:%i:%s')]]> order by is_valid DESC
+    </select>
+</mapper>
